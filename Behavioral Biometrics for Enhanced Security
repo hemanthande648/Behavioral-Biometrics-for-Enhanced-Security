@@ -1,0 +1,23 @@
+# Behavioral-Biometrics-for-Enhanced-Security
+
+import pandas as pd
+from sklearn.ensemble import IsolationForest
+
+# Load user interaction data
+user_data = pd.read_csv("user_interactions.csv")
+
+# Create a behavioral profile for each user
+profiles = {}
+for user in user_data["user_id"].unique():
+    user_interactions = user_data[user_data["user_id"] == user]
+    profile = IsolationForest(contamination=0.1).fit(user_interactions)
+    profiles[user] = profile
+
+# Detect anomalies in real-time
+def detect_anomaly(user_id, interaction_data):
+    profile = profiles[user_id]
+    anomaly_score = profile.decision_function(interaction_data)
+    if anomaly_score > 0.5:
+        return True  # Anomaly detected
+    else:
+        return False  # No anomaly detected
